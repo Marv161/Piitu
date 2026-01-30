@@ -1,9 +1,9 @@
-
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>xPiitu | GALERÍA </title>
+    <title>xPiitu | GALERÍA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +20,9 @@
             color: white;
             font-family: 'Poppins', sans-serif;
             overflow-x: hidden;
+            /* Evita la selección de texto para mayor seguridad */
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         /* Efecto de Texto 3D con Wave y Glow */
@@ -98,6 +101,9 @@
             height: 100%;
             object-fit: cover;
             transition: transform 0.5s ease;
+            /* Bloqueo adicional por CSS para arrastre */
+            pointer-events: auto;
+            -webkit-user-drag: none;
         }
 
         .art-frame:hover img {
@@ -133,7 +139,7 @@
         }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
     <!-- Fondos Decorativos -->
     <div class="bg-glow" style="top: -10%; left: -10%;"></div>
@@ -162,12 +168,56 @@
         <p class="mt-2 text-pink-900">Hecho con pasión y estética.</p>
     </footer>
 
-    <!-- Overlay de Previsualización (Opcional) -->
+    <!-- Overlay de Previsualización -->
     <div id="modal" class="fixed inset-0 bg-black/95 z-50 hidden flex items-center justify-center p-4 cursor-zoom-out">
-        <img id="modal-img" src="" alt="Zoom" class="max-w-full max-h-full rounded shadow-2xl border border-pink-600/30">
+        <img id="modal-img" src="" alt="Zoom" class="max-w-full max-h-full rounded shadow-2xl border border-pink-600/30" oncontextmenu="return false;" ondragstart="return false;">
     </div>
 
     <script>
+        // --- SEGURIDAD Y PROTECCIÓN ---
+        
+        // Desactivar clic derecho en todo el documento
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Desactivar arrastre de imágenes
+        document.addEventListener('dragstart', event => {
+            if (event.target.tagName === 'IMG') event.preventDefault();
+        });
+
+        // Bloquear atajos de teclado de inspección
+        document.addEventListener('keydown', function(e) {
+            // F12
+            if (e.keyCode == 123) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+I (Inspect)
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 73) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+J (Console)
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 74) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+U (View Source)
+            if (e.ctrlKey && e.keyCode == 85) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+C (Inspect Element)
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 67) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+S (Save Page)
+            if (e.ctrlKey && e.keyCode == 83) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
         const gifs = [
             "https://xatimg.com/image/RRAUo3JmiNLG.gif",
             "https://xatimg.com/image/HnobGMzks2S8.gif",
@@ -211,14 +261,13 @@
             frame.className = 'art-frame cursor-zoom-in';
             frame.innerHTML = `
                 <div class="gif-container">
-                    <img src="${url}" alt="Trabajo Animado ${index + 1}" loading="lazy">
+                    <img src="${url}" alt="Trabajo Animado ${index + 1}" loading="lazy" ondragstart="return false;">
                 </div>
                 <div class="absolute bottom-4 left-4 z-20 opacity-0 transform translate-y-4 transition-all duration-300 art-label">
                     <span class="bg-black/80 backdrop-blur-md px-3 py-1 text-[10px] uppercase tracking-widest text-pink-400 border border-pink-900/50">Obra #${index + 1}</span>
                 </div>
             `;
             
-            // Efecto de aparición de etiqueta al hacer hover
             frame.addEventListener('mouseenter', () => {
                 const label = frame.querySelector('.art-label');
                 if(label) label.classList.remove('opacity-0', 'translate-y-4');
@@ -228,7 +277,6 @@
                 if(label) label.classList.add('opacity-0', 'translate-y-4');
             });
 
-            // Función de Zoom
             frame.addEventListener('click', () => {
                 modalImg.src = url;
                 modal.classList.remove('hidden');
@@ -238,7 +286,6 @@
             gallery.appendChild(frame);
         });
 
-        // Cerrar Modal
         modal.addEventListener('click', () => {
             modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
